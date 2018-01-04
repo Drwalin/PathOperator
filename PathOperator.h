@@ -36,6 +36,8 @@ private:
 	
 public:
 	
+	PathOperator& operator = ( const PathOperator& src );
+	
 	std::string GetLine( int id ) const;	// id >= 0
 	void System( std::string temp ) const;
 	

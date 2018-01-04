@@ -22,6 +22,12 @@
 
 #include "PathOperator.h"
 
+PathOperator& PathOperator::operator = ( const PathOperator& src )
+{
+	path = src.path;
+	tempFileName = src.tempFileName;
+}
+
 void PathOperator::System( std::string temp ) const
 {
 	system( temp.c_str() );
@@ -48,13 +54,19 @@ int PathOperator::ChangeDirectory( std::string dir )
 {
 	if( dir == ".." )
 	{
+		printf( "\n a " );
 		if( path.size() > 1 )
 			path.resize( path.size() - 1 );
+		return 1;
 	}
 	else if( dir != "." )
 	{
+		printf( "\n b " );
 		path.push_back( dir );
+		return 1;
 	}
+	printf( "\n c " );
+	return 0;
 }
 
 std::vector<std::string> PathOperator::List( bool returnWithGlobalPath ) const
@@ -143,7 +155,6 @@ PathOperator::PathOperator()
 	tempBufer = new char[1024];
 	memset( tempBufer, 0, 1024 );
 	tempFileName = "temp.system.com.tmp";
-	path.push_back( std::string( "C:" ) );
 	System( std::string("dir > ") + tempFileName );
 	
 	std::string line = GetLine( 3 );
@@ -169,6 +180,27 @@ PathOperator::PathOperator()
 	}
 	
 	tempFileName = std::string( line.c_str()+i ) + "\\" + tempFileName;
+	
+	memcpy( tempBufer, line.c_str(), line.size() );
+	tempBufer[line.size()] = 0;
+	
+	std::vector < int > begId;
+	begId.push_back( i );
+	for( ; i < line.size(); ++i )
+	{
+		if( tempBufer[i] == '\\' || tempBufer[i] == '/' )
+		{
+			tempBufer[i] = 0;
+			begId.push_back( i+1 );
+		}
+	}
+	
+	path.clear();
+	for( i = 0; i < begId.size(); ++i )
+	{
+		path.resize( path.size() + 1 );
+		path.back() = tempBufer + begId[ i ];
+	}
 }
 
 PathOperator::~PathOperator()
